@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 const NAV_LINKS = [
   { name: 'ABOUT', href: '#about' },
   { name: 'WORK', href: '#work' },
-  { name: 'RESUME', href: '/Nithish_Resume.pdf', target: '_blank' },
   { name: 'CONTACT', href: '#contact' },
 ];
 
@@ -46,9 +45,9 @@ const Navbar = () => {
         isScrolled ? 'bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5 py-4' : 'bg-transparent py-6'
       }`}
     >
-      <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
+      <div className="container mx-auto px-6 md:px-12 grid grid-cols-3 items-center">
         {/* Logo - Left */}
-        <div className="flex-shrink-0">
+        <div className="flex justify-start">
           <a href="#home" className="text-xl font-heavy text-white tracking-widest cursor-none relative group">
             NKR
             <div className="absolute -inset-2 bg-white/5 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -56,24 +55,20 @@ const Navbar = () => {
         </div>
 
         {/* Email - Center */}
-        <div className="hidden lg:flex justify-center flex-1">
+        <div className="hidden md:flex justify-center">
           <a href="mailto:nithishkumarreddynare1@gmail.com" className="text-white/70 hover:text-white transition-colors text-sm font-medium tracking-wide">
             nithishkumarreddynare1@gmail.com
           </a>
         </div>
 
         {/* Links & Visualizer - Right */}
-        <div className="flex-shrink-0 flex items-center gap-6">
+        <div className="flex justify-end items-center gap-6">
           <div className="hidden md:flex items-center gap-6">
             {NAV_LINKS.map((link) => (
               <a 
                 key={link.name} 
                 href={link.href}
-                target={link.target}
-                rel={link.target ? "noopener noreferrer" : undefined}
-                className={`text-xs font-medium tracking-widest transition-colors duration-300 cursor-none ${
-                    link.target ? 'text-[#00e5b0] hover:text-white' : 'text-white/70 hover:text-white'
-                }`}
+                className="text-xs font-medium tracking-widest text-white/70 hover:text-white transition-colors duration-300 cursor-none"
               >
                 {link.name}
               </a>

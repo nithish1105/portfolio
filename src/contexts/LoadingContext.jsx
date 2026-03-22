@@ -5,52 +5,30 @@ const LoadingContext = createContext();
 export const useLoading = () => useContext(LoadingContext);
 
 export const LoadingProvider = ({ children }) => {
-  const [progress, setProgress] = useState(0); // Display progress: 0 to 1
-  const targetProgress = React.useRef(0);      // Real loading progress
+  const [progress, setProgress] = useState(0); // 0 to 1
   const [isReady, setIsReady] = useState(false);
 
-  // Smoothly interpolate progress up to target, enforcing a minimum load time
+  // Smooth progress simulator
   useEffect(() => {
-    const update = () => {
-      setProgress((prev) => {
-        if (prev >= 1) return 1;
+    let current = 0;
+    const timer = setInterval(() => {
+      // 1 / 0.0025 = 400 steps. 400 * 10ms = 4000ms (4 seconds)
+      current += 0.0025; 
+      
+      if (current >= 1) {
+        current = 1;
+        clearInterval(timer);
+        setTimeout(() => setIsReady(true), 2000); // Wait 2s (matches 6s timeline)
+      }
+      
+      setProgress((prev) => Math.max(prev, current));
+    }, 10); // Ultra smooth 10ms interval
 
-        let next = prev;
-        const target = targetProgress.current;
-
-        // Visual update speed: 0.005 per frame (approx 60fps) -> ~3.3 seconds from 0 to 1
-        // If target is much further ahead, we can speed up slightly but keep it smooth
-        const speed = 0.008; 
-        
-        if (prev < target) {
-          next = prev + speed;
-          if (next > target) next = target;
-        }
-
-        return next;
-      });
-    };
-
-    // Run roughly 60fps
-    const timer = setInterval(update, 16);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (progress >= 1) {
-      // Once visual progress hits 100%, wait a moment before unmounting
-      const t = setTimeout(() => setIsReady(true), 800);
-      return () => clearTimeout(t);
-    }
-  }, [progress]);
-
-  // External setter updates the ref, not the state directly
-  const setProgressHandler = (val) => {
-    targetProgress.current = Math.min(Math.max(val, 0), 1);
-  };
-
   return (
-    <LoadingContext.Provider value={{ progress, setProgress: setProgressHandler, isReady }}>
+    <LoadingContext.Provider value={{ progress, setProgress, isReady }}>
       {children}
     </LoadingContext.Provider>
   );

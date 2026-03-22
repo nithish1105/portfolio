@@ -31,14 +31,16 @@ const ScrambleText = ({ text, isActive, isTeal }) => {
 const FlipText = () => {
   const words = [
     { text: "ENGINEER", isTeal: false }, 
-    { text: "DEVELOPER", isTeal: true }
+    { text: "DEVELOPER", isTeal: true },
+    { text: "CREATOR", isTeal: false },
+    { text: "PROBLEM SOLVER", isTeal: true }
   ];
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % words.length);
-    }, 3000); // slightly longer to appreciate scramble
+    }, 2500); // Faster cycle
     return () => clearInterval(interval);
   }, []);
 
@@ -80,11 +82,12 @@ const Landing = () => {
           { icon: Twitter, href: "https://twitter.com" },
           { icon: Instagram, href: "https://instagram.com" }
         ].map(({ icon: Icon, href }, idx) => (
-          <a base 
+          <a 
             key={idx} 
             href={href} 
-            target="_blank" rel="noreferrer"
-            className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors cursor-none"
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors cursor-none pointer-events-auto"
           >
             <Icon size={18} strokeWidth={1.5} />
           </a>
@@ -133,7 +136,6 @@ const Landing = () => {
         <a 
           href="/Nithish_Resume.pdf" 
           target="_blank"
-          rel="noopener noreferrer"
           className="group flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 glass rounded-full hover:bg-white/10 hover:border-[#00e5b0]/50 transition-all cursor-none"
         >
           <span className="text-white font-heavy text-xs tracking-[0.2em] uppercase">

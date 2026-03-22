@@ -1,65 +1,57 @@
-import React, { useRef, useState, useMemo, Suspense } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Physics, useSphere } from '@react-three/cannon';
 import { Environment, Text, Decal, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 const SKILLS = [
-  { name: "React", slug: "react" },
-  { name: "Three.js", slug: "threedotjs" },
-  { name: "Next.js", slug: "nextdotjs" },
-  { name: "Node.js", slug: "nodedotjs" },
-  { name: "Tailwind", slug: "tailwindcss" },
-  { name: "WebGL", slug: "opengl" },
-  { name: "TypeScript", slug: "typescript" },
-  { name: "Python", slug: "python" },
-  { name: "Postgres", slug: "postgresql" },
-  { name: "MySQL", slug: "mysql" },
-  { name: "Redis", slug: "redis" },
-  { name: "Google Cloud", slug: "googlecloud" },
-  { name: "GSAP", slug: "greensock" },
-  { name: "Framer", slug: "framer" }
+  { name: "React", bg: "#61DAFB", img: "https://cdn.simpleicons.org/react" },
+  { name: "Three.js", bg: "#000000", img: "https://cdn.simpleicons.org/three.js" },
+  { name: "Next.js", bg: "#000000", img: "https://cdn.simpleicons.org/next.js" },
+  { name: "Node.js", bg: "#339933", img: "https://cdn.simpleicons.org/nodedotjs" },
+  { name: "Tailwind", bg: "#06B6D4", img: "https://cdn.simpleicons.org/tailwindcss" },
+  { name: "WebGL", bg: "#990000", img: "https://cdn.simpleicons.org/webgl" },
+  { name: "TypeScript", bg: "#3178C6", img: "https://cdn.simpleicons.org/typescript" },
+  { name: "Python", bg: "#3776AB", img: "https://cdn.simpleicons.org/python" },
+  { name: "Postgres", bg: "#4169E1", img: "https://cdn.simpleicons.org/postgresql" },
+  { name: "Redis", bg: "#DC382D", img: "https://cdn.simpleicons.org/redis" },
+  { name: "GSAP", bg: "#88CE02", img: "https://cdn.simpleicons.org/greensock" },
+  { name: "Framer", bg: "#0055FF", img: "https://cdn.simpleicons.org/framer" },
+  { name: "MySQL", bg: "#4479A1", img: "https://cdn.simpleicons.org/mysql" },
+  { name: "Java", bg: "#007396", img: "https://cdn.simpleicons.org/openjdk" }
 ];
 
-const SkillBall = ({ text, slug, position }) => {
+const SkillBall = ({ skill, position }) => {
   const [ref, api] = useSphere(() => ({
     mass: 1,
     position,
     args: [1],
-    linearDamping: 0.4,
-    angularDamping: 0.4,
+    linearDamping: 0.8,
+    angularDamping: 0.8,
+    collisionFilterGroup: 1, // Optimize collision
+    collisionFilterMask: 1, // Only collide with default group
   }));
   const [hovered, setHovered] = useState(false);
-  
-  // Load logo texture
-  const texture = useTexture(`https://cdn.simpleicons.org/${slug}`);
+  const texture = useTexture(skill.img);
 
-  // Apply a gentle force towards the center (0,0,0) to keep them clustered
-  useFrame((state) => {
+  useFrame(() => {
     if (!ref.current) return;
-    const pos = new THREE.Vector3();
-    ref.current.getWorldPosition(pos);
-    
-    // Limits
-    if (pos.length() > 5) {
-       const dir = pos.clone().normalize().multiplyScalar(-10);
-       api.applyForce([dir.x, dir.y, dir.z], [0,0,0]);
-    }
-    
-    // Gentle gravity to center
-    if (pos.lengthSq() > 0.5) {
-        pos.normalize().multiplyScalar(-2);
-        api.applyForce([pos.x, pos.y, 0], [0, 0, 0]);
+    // Skip heavy calculations if not needed every frame
+    if (Math.random() > 0.5) {
+      const pos = new THREE.Vector3();
+      ref.current.getWorldPosition(pos);
+      
+      // Keep Z roughly 0 to avoid front/back spread
+      // Gentler pull to center for smoother float
+      const force = pos.clone().normalize().multiplyScalar(-2.5);
+      api.applyForce([force.x, force.y, -pos.z * 2], [0, 0, 0]); // Stronger Z containment
     }
   });
 
   const handlePointerOver = (e) => {
     e.stopPropagation();
     setHovered(true);
-    document.body.style.cursor = 'none'; // Keep custom cursor
-    // Push away randomly on hover
-    const dir = new THREE.Vector3().copy(ref.current.position).normalize();
-    api.applyImpulse([dir.x * 2 + (Math.random()-0.5)*2, dir.y * 2 + (Math.random()-0.5)*2, (Math.random()-0.5)*2], [0, 0, 0]);
+    document.body.style.cursor = 'none';
   };
 
   return (
@@ -70,69 +62,66 @@ const SkillBall = ({ text, slug, position }) => {
       castShadow
       receiveShadow
     >
-      <sphereGeometry args={[1, 64, 64]} />
+      <sphereGeometry args={[1, 16, 16]} /> {/* Reduced polygon count for performance */}
       <meshPhysicalMaterial 
-        color={hovered ? "#ffffff" : "#f0f0f0"}
+        color="#ffffff" 
         roughness={0.15}
         metalness={0.1}
         transmission={0}
-        thickness={0}
+        thickness={1}
         clearcoat={1}
         clearcoatRoughness={0.1}
-        emissive={hovered ? "#ffffff" : "#000000"}
-        emissiveIntensity={hovered ? 0.4 : 0}
       />
-      
-      {/* Front Decal Logo */}
       <Decal 
-        position={[0, 0.2, 1]} 
+        position={[0, 0, 1]} 
         rotation={[0, 0, 0]} 
         scale={0.8} 
         map={texture} 
       />
-
-      {/* Text Label */}
       <Text
-        position={[0, -0.6, 1.05]} 
+        position={[0, -0.6, 0.8]} 
+        rotation={[0, 0, 0]}
         fontSize={0.25}
-        color="#000000"
+        fontWeight="bold"
+        color="black"
         anchorX="center"
         anchorY="middle"
+        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf"
       >
-        {text}
+        {skill.name}
       </Text>
-      
-      {/* Back Decal Logo (optional, or mirrored) */}
+
       <Decal 
-        position={[0, 0.2, -1]} 
+        position={[0, 0, -1]} 
         rotation={[0, Math.PI, 0]} 
         scale={0.8} 
         map={texture} 
       />
-       <Text
-        position={[0, -0.6, -1.05]} 
+      <Text
+        position={[0, -0.6, -0.8]} 
         rotation={[0, Math.PI, 0]}
         fontSize={0.25}
-        color="#000000"
+        fontWeight="bold"
+        color="black"
         anchorX="center"
         anchorY="middle"
+        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf"
       >
-        {text}
+        {skill.name}
       </Text>
     </mesh>
   );
 };
 
-
 // Mouse repeller invisible ball
 const Pointer = () => {
-  const { viewport, mouse } = useThree();
-  const [ref, api] = useSphere(() => ({ type: "Kinematic", args: [2], position: [0, 0, 0] }));
+  const { viewport } = useThree();
+  const [ref, api] = useSphere(() => ({ type: "Kinematic", args: [2.5], position: [0, 0, 0] }));
   
   useFrame(({ mouse }) => {
     const x = (mouse.x * viewport.width) / 2;
     const y = (mouse.y * viewport.height) / 2;
-    api.position.set(x, y, 0); // Pointer moves an invisible kinematic sphere around
+    api.position.set(x, y, 0); 
   });
   return null;
 };
@@ -145,7 +134,7 @@ const TechStack = () => {
       const r = Math.random() * 5;
       const x = r * Math.cos(theta);
       const y = r * Math.sin(theta);
-      return { id: index, ...skill, position: [x, y, (Math.random() - 0.5) * 2] };
+      return { id: index, skill: skill, position: [x, y, (Math.random() - 0.5) * 2] };
     });
   }, []);
 
@@ -163,19 +152,17 @@ const TechStack = () => {
       </div>
 
       <div className="w-full h-[600px] md:h-[800px] mt-8 relative cursor-none">
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 15], fov: 45 }}>
+        <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 0, 15], fov: 45 }}> {/* Reduced dpr for mobile */}
           <ambientLight intensity={0.5} />
           <spotLight position={[10, 10, 10]} intensity={2} angle={0.3} penumbra={1} castShadow />
           <Environment preset="city" />
           
-          <Suspense fallback={null}>
-            <Physics gravity={[0, 0, 0]} iterations={10}>
-              <Pointer />
-              {balls.map((ball) => (
-                <SkillBall key={ball.id} text={ball.name} slug={ball.slug} position={ball.position} />
-              ))}
-            </Physics>
-          </Suspense>
+          <Physics gravity={[0, 0, 0]} iterations={5}> {/* Reduced physics iterations */}
+            <Pointer />
+            {balls.map((ball) => (
+              <SkillBall key={ball.id} skill={ball.skill} position={ball.position} />
+            ))}
+          </Physics>
 
         </Canvas>
       </div>

@@ -3,91 +3,144 @@ import gsap from 'gsap';
 
 const CursorFollower = () => {
   const cursorRef = useRef(null);
+  const dotRef = useRef(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
     if (!cursor) return;
 
-    // Use quickSetter for instant updates without overhead of gsap.to() parsing
-    const xSet = gsap.quickSetter(cursor, "x", "px");
-    const ySet = gsap.quickSetter(cursor, "y", "px");
+    // We only want this on non-touch devices
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
+    let hoverTarget = null;
     let mouseX = 0, mouseY = 0;
-    let targetX = 0, targetY = 0;
-    let isHovering = false;
 
-    // Use requestAnimationFrame loop for smooth following instead of reacting to every event
-    let rafId = null;
-    const loop = () => {
-      // Smooth lerp: moves 15% towards target per frame
-      const dt = 0.15;
-      targetX += (mouseX - targetX) * dt;
-      targetY += (mouseY - targetY) * dt;
+    const moveCursor = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
 
-      xSet(targetX);
-      ySet(targetY);
-      rafId = requestAnimationFrame(loop);
-    };
-    loop();
-
-    const onMouseMove = (e) => {
-      // Offset by half width/height so cursor centers on pointer
-      mouseX = e.clientX - 6; 
-      mouseY = e.clientY - 6;
-    };
-
-    // --- Hover Logic using Event Delegation (Performant) ---
-    // Instead of attaching listeners to every element, listen on document capture/bubble
-    const onMouseOver = (e) => {
-      const target = e.target.closest('a, button, [role="button"]');
-      if (target) {
-        isHovering = true;
-        gsap.to(cursor, { 
-          scale: 3.5, 
-          backgroundColor: "rgba(0, 229, 176, 0.1)", // Faint teal
-          borderColor: "rgba(0, 229, 176, 0.4)",
-          borderWidth: "1px",
-          borderStyle: "solid",
-          duration: 0.3,
+      if (!hoverTarget) {
+        gsap.to(cursor, {
+          x: mouseX,
+          y: mouseY,
+          duration: 0.15,
           ease: "power2.out"
         });
       }
     };
 
-    const onMouseOut = (e) => {
-      const target = e.target.closest('a, button, [role="button"]');
-      if (target) {
-        isHovering = false;
-        gsap.to(cursor, { 
-          scale: 1, 
-          backgroundColor: "#00e5b0", // Solid mint dot
-          borderColor: "transparent", 
-          borderWidth: "0px",
-          duration: 0.3 
-        });
-      }
+    const handleHover = (e) => {
+      hoverTarget = e.currentTarget;
+      const rect = hoverTarget.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Magnetic snap to center of button/link
+      gsap.to(cursor, { 
+        x: centerX, 
+        y: centerY, 
+        scale: 2.5, 
+        backgroundColor: "rgba(0, 229, 176, 0.15)", // Teal glow
+        borderColor: "rgba(0, 229, 176, 0.4)",
+        duration: 0.3,
+        ease: "power2.out"
+      });
+      
+      // Also slightly move the target itself for full magnetic effect
+      gsap.to(hoverTarget, {
+        x: (mouseX - centerX) * 0.2,
+        y: (mouseY - centerY) * 0.2,
+        duration: 0.3,
+        ease: "power2.out"
+      });
+      
+      window.dispatchEvent(new CustomEvent('mouseenter-interactive'));
     };
 
-    window.addEventListener("mousemove", onMouseMove, { passive: true });
-    document.addEventListener("mouseover", onMouseOver, { passive: true });
-    document.addEventListener("mouseout", onMouseOut, { passive: true });
+    const handleHoverMove = (e) => {
+      if (!hoverTarget) return;
+      const rect = hoverTarget.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      // Pull the cursor slightly towards the mouse while snapped
+      const magneticX = centerX + (mouseX - centerX) * 0.3;
+      const magneticY = centerY + (mouseY - centerY) * 0.3;
+      
+      gsap.to(cursor, {
+        x: magneticX,
+        y: magneticY,
+        duration: 0.1,
+        ease: "power2.out"
+      });
+      
+      // Pull the button slightly
+      gsap.to(hoverTarget, {
+        x: (mouseX - centerX) * 0.2,
+        y: (mouseY - centerY) * 0.2,
+        duration: 0.1,
+        ease: "power2.out"
+      });
+    };
+
+    const handleLeave = (e) => {
+      if (hoverTarget) {
+        // Reset hovered element position
+        gsap.to(hoverTarget, { x: 0, y: 0, duration: 0.4, ease: "elastic.out(1, 0.3)" });
+      }
+      hoverTarget = null;
+      
+      gsap.to(cursor, { 
+        scale: 1, 
+        backgroundColor: "#00e5b0", // Solid mint dot
+        borderColor: "transparent", 
+        duration: 0.3 
+      });
+      window.dispatchEvent(new CustomEvent('mouseleave-interactive'));
+    };
+
+    window.addEventListener("mousemove", moveCursor);
+
+    // Add listeners to interactive elements
+    const interactiveSelectors = 'a, button, [role="button"]';
+    const initHoverEvents = () => {
+      document.querySelectorAll(interactiveSelectors).forEach(el => {
+        el.addEventListener("mouseenter", handleHover);
+        el.addEventListener("mousemove", handleHoverMove);
+        el.addEventListener("mouseleave", handleLeave);
+      });
+    };
+    
+    initHoverEvents();
+    
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          initHoverEvents();
+        }
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseover", onMouseOver);
-      document.removeEventListener("mouseout", onMouseOut);
+      window.removeEventListener("mousemove", moveCursor);
+      document.querySelectorAll(interactiveSelectors).forEach(el => {
+        el.removeEventListener("mouseenter", handleHover);
+        el.removeEventListener("mousemove", handleHoverMove);
+        el.removeEventListener("mouseleave", handleLeave);
+      });
+      observer.disconnect();
     };
   }, []);
 
   return (
-    <div 
-      ref={cursorRef} 
-      className="fixed top-0 left-0 w-3 h-3 rounded-full bg-brand-500 pointer-events-none z-[9999] hidden md:block"
-      style={{ willChange: 'transform' }} // Hardware acceleration hint
-    />
+    <>
+      <div 
+        ref={cursorRef} 
+        className="fixed top-0 left-0 w-3 h-3 rounded-full bg-brand-500 pointer-events-none z-[9999] hidden md:block -ml-1.5 -mt-1.5 mix-blend-screen"
+      />
+    </>
   );
 };
-
 
 export default CursorFollower;

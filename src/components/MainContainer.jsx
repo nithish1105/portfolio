@@ -13,8 +13,6 @@ import Certificates from './sections/Certificates';
 import Work from './sections/Work';
 import Contact from './sections/Contact';
 
-import ErrorBoundary from './ui/ErrorBoundary';
-
 gsap.registerPlugin(ScrollTrigger);
 
 const MainContainer = () => {
@@ -58,70 +56,68 @@ const MainContainer = () => {
       );
 
       // 3. Setup ScrollTrigger for 3D Character
-      // Ensure we have the model and the DOM is ready
-      const setupTimeline = () => {
+        // Wait a moment for model to be fully ready before grabbing
+      aboutTimer = setTimeout(() => {
         const model = getModel();
         if (model) {
           const baseScale = model.scale.x;
-          // Capture initial transforms - assuming the model is in 'idle' state from load
           const basePos   = model.position.clone();
           const baseRot   = model.rotation.clone();
           
-          // Cleanup old instance if strictly needed (though usually useEffect cleanup handles it)
-          if (aboutTimeline) aboutTimeline.kill();
-
+          // Smooth, classy scrubbed animation that matches the provided reference crop
           aboutTimeline = gsap.timeline({
             scrollTrigger: {
               trigger: "#about",
-              start: "top 60%",   // Start slightly earlier
+              start: "top 75%",   // start earlier so the shift is visible
               end: "bottom center",
-              scrub: 1.5,         // Smoother scrub
-              onEnter:     () => mouseTracker?.setActive?.(false),
-              onLeave:     () => mouseTracker?.setActive?.(true),
-              onEnterBack: () => mouseTracker?.setActive?.(false), // Re-disable when scrolling back up into view
+              scrub: 1.2,
+              onEnter:   () => mouseTracker?.setActive?.(false),
+              onLeave:   () => mouseTracker?.setActive?.(true),
               onLeaveBack: () => mouseTracker?.setActive?.(true),
-              invalidateOnRefresh: true,
             }
           });
 
           aboutTimeline
-            .to(model.position, {
-              x: -1.8,
-              y: -2.3,
-              z: 1.2,
-              duration: 2,
-              ease: "power2.inOut"
+            .fromTo(model.position, {
+              x: basePos.x,
+              y: basePos.y,
+              z: basePos.z,
+            }, {
+              x: -1.8,   // Positioned on the left side like the photo
+              y: -2.3,   // Shoulders at the bottom
+              z: 1.2,    // Closer to camera
+              duration: 1.2,
+              ease: "power3.inOut"
             }, 0)
-            .to(model.scale, {
-              x: baseScale * 2.5,
+            .fromTo(model.scale, {
+              x: baseScale,
+              y: baseScale,
+              z: baseScale,
+            }, {
+              x: baseScale * 2.5, // Large but fully visible head
               y: baseScale * 2.5,
               z: baseScale * 2.5,
-              duration: 2,
-              ease: "power2.inOut"
+              duration: 1.2,
+              ease: "power3.inOut"
             }, 0)
-            .to(model.rotation, {
-              y: Math.PI / 4,
-              x: -Math.PI / 20,
-              // z: baseRot.z, // Let Z stay as is or animate if needed
-              duration: 2,
-              ease: "power2.inOut"
+            .fromTo(model.rotation, {
+              x: baseRot.x,
+              y: baseRot.y,
+              z: baseRot.z,
+            }, {
+              y: Math.PI / 4, // 45 degree turn towards text
+              x: -Math.PI / 20, // Slight tilt down
+              z: baseRot.z,
+              duration: 1.2,
+              ease: "power3.inOut"
             }, 0);
-            
-            // Force a refresh to ensure start/end positions are calculated correctly
-            ScrollTrigger.refresh();
-        } else {
-             // Retry if model somehow isn't ready despite isReady check
-             aboutTimer = setTimeout(setupTimeline, 100);
         }
-      };
-
-      // Slight delay to ensure layout is settled
-      aboutTimer = setTimeout(setupTimeline, 100);
+      }, 500);
 
       return () => {
         if (aboutTimer) clearTimeout(aboutTimer);
+        if (aboutTimeline?.scrollTrigger) aboutTimeline.scrollTrigger.kill();
         if (aboutTimeline) aboutTimeline.kill();
-        // Ensure mouse tracker is re-enabled if we unmount/leave
         mouseTracker?.setActive?.(true);
       };
     }
@@ -156,9 +152,7 @@ const MainContainer = () => {
         {/* We place these in a solid background wrapper so they overlay the fixed canvas below them */}
         <div className="bg-black relative z-20">
           <WhatIDo />
-          <ErrorBoundary fallback={<div className="text-white p-10">TechStack Unavailable</div>}>
-            <TechStack />
-          </ErrorBoundary>
+          <TechStack />
           <Certificates />
           <Work />
           <Contact />

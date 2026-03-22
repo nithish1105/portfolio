@@ -96,16 +96,17 @@ const Contact = () => {
           </p>
           <div className="flex gap-6">
             {[
-              { icon: Github, href: "https://github.com/nithish1105" },
-              { icon: Linkedin, href: "https://www.linkedin.com/in/nithishkumarreddy-nare-151539382" },
-              { icon: Twitter, href: "https://twitter.com" },
-              { icon: Instagram, href: "https://instagram.com" }
-            ].map(({ icon: Icon, href }, idx) => (
+              { Icon: Github, href: "https://github.com/nithish1105" },
+              { Icon: Linkedin, href: "https://www.linkedin.com/in/nithishkumarreddy-nare-151539382" },
+              { Icon: Twitter, href: "https://twitter.com" },
+              { Icon: Instagram, href: "https://instagram.com" }
+            ].map(({ Icon, href }, idx) => (
               <a 
                 key={idx} 
                 href={href} 
-                target="_blank" rel="noreferrer"
-                className="text-white/40 hover:text-[#00e5b0] transition-colors cursor-none"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/40 hover:text-[#00e5b0] transition-colors cursor-none pointer-events-auto"
               >
                 <Icon size={18} />
               </a>

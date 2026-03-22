@@ -5,17 +5,17 @@ import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 const PROJECTS = [
   {
     title: 'Smart Academy',
-    description: 'A modern educational platform designed to streamline the learning process with interactive course modules and student management features.',
-    tech: ['HTML5', 'CSS3', 'JavaScript', 'Responsive UI'],
+    description: 'An educational platform for smart learning featuring interactive courses, student progress tracking, and resource management.',
+    tech: ['HTML', 'CSS', 'JavaScript', 'GitHub Pages'],
     link: 'https://nithish1105.github.io/smart-academy/',
-    image: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=2070&auto=format&fit=crop'
   },
   {
     title: 'Text to Emoji',
-    description: 'An intuitive text conversion tool that magically transforms plain text into expressive emoji sequences, enhancing digital communication efficiency.',
-    tech: ['JavaScript', 'Text Processing', 'DOM Manipulation'],
+    description: 'A fun and interactive tool that converts plain text into relevant emojis instantly, enhancing digital communication.',
+    tech: ['JavaScript', 'HTML5', 'CSS3', 'Emoji API'],
     link: 'https://nithish1105.github.io/text-to-emoji/',
-    image: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?auto=format&fit=crop&q=80'
+    image: 'https://images.unsplash.com/photo-1541359927273-d76820fc43f9?q=80&w=2070&auto=format&fit=crop'
   }
 ];
 

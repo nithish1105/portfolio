@@ -1,31 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '../../contexts/LoadingContext';
 
 const LoadingScreen = () => {
   const { progress, isReady } = useLoading();
-  const [counter, setCounter] = useState(0);
+  const [showWelcome, setShowWelcome] = React.useState(false);
+  
+  const pctValue = Math.floor(progress * 100);
 
-  // Custom counter that uses the loading progress but adds a ticker effect
-  useEffect(() => {
-    const target = Math.floor(progress * 100);
-    const interval = setInterval(() => {
-      setCounter(prev => {
-        if (prev < target) return prev + 1;
-        return prev;
-      });
-    }, 10);
-    return () => clearInterval(interval);
+  React.useEffect(() => {
+    if (progress >= 1) {
+      const timer = setTimeout(() => setShowWelcome(true), 800); // Wait 0.8s shows 100% before switching
+      return () => clearTimeout(timer);
+    }
   }, [progress]);
 
-  const pctString = counter.toString().padStart(3, '0');
-
   // Text for marquee
-  const headlines = [
-    "A CREATOR • A PROBLEM SOLVER • ",
-    "FULL STACK DEVELOPER • VISIONARY • ",
-    "A CREATOR • A PROBLEM SOLVER • "
-  ];
+  const marqueeText = "FULL STACK DEVELOPER • CREATOR • PROBLEM SOLVER • SOFTWARE ENGINEER • ";
 
   return (
     <AnimatePresence>
@@ -33,90 +24,85 @@ const LoadingScreen = () => {
         <motion.div
           key="loading"
           initial={{ opacity: 1 }}
-          exit={{ y: "-100%", opacity: 0, transition: { duration: 0.8, ease: [0.76, 0, 0.24, 1] } }}
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden pointer-events-auto"
+          exit={{ y: "-100%", opacity: 0 }}
+          transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }} 
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white overflow-hidden"
         >
-          {/* Background Marquee - Subtle & Stylish */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-[0.03] gap-0 rotate-[-5deg] scale-110">
-            {headlines.map((text, idx) => (
-              <div key={idx} className="w-full flex overflow-hidden py-4">
-                <motion.div
-                  initial={{ x: idx % 2 === 0 ? "0%" : "-50%" }}
-                  animate={{ x: idx % 2 === 0 ? "-50%" : "0%" }}
-                  transition={{ 
-                    repeat: Infinity, 
-                    ease: "linear", 
-                    duration: 25 + idx * 5 
-                  }}
-                  className="flex whitespace-nowrap"
+          {/* Massive Scrolling Marquee Background */}
+          <div className="absolute top-1/2 -translate-y-1/2 w-full flex overflow-hidden pointer-events-none select-none">
+             <motion.div
+              initial={{ x: 0 }}
+              animate={{ x: "-50%" }}
+              transition={{ repeat: Infinity, ease: "linear", duration: 30 }} 
+              className="flex whitespace-nowrap min-w-full"
+            >
+              {[...Array(6)].map((_, i) => (
+                <span 
+                  key={i} 
+                  className="text-[12vw] font-black text-black/10 stroke-text tracking-tighter mx-4 uppercase shrink-0"
+                  style={{ WebkitTextStroke: "3px rgba(0, 0, 0, 0.3)" }}
                 >
-                  {[...Array(4)].map((_, i) => (
-                    <span 
-                      key={i} 
-                      className="text-[10vw] font-black text-black tracking-tighter mx-8 uppercase leading-none"
-                      style={{ WebkitTextStroke: '2px black', color: 'transparent' }}
-                    >
-                      {text}
-                    </span>
-                  ))}
-                </motion.div>
-              </div>
-            ))}
+                  {marqueeText}
+                </span>
+              ))}
+            </motion.div>
           </div>
 
-          {/* Centered Modern Loader */}
+          {/* Centered Pill Loader - Improved Visuals */}
           <motion.div 
-            className="z-10 relative flex flex-col items-center gap-6"
+            className="z-10 relative flex flex-col items-center justify-center gap-4 w-72 py-8 bg-white/90 backdrop-blur-md rounded-2xl border border-black/5 shadow-2xl"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            {/* Minimalist Pill Container */}
-            <div className="bg-white/80 backdrop-blur-xl border border-black/5 rounded-full p-2 px-8 shadow-[0_20px_40px_rgba(0,0,0,0.05)] flex items-center gap-6">
-              
-              {/* Status Text */}
-              <div className="flex flex-col items-end min-w-[120px]">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-black/40 uppercase mb-0.5">
-                  {counter > 99 ? "Complete" : "Loading..."}
-                </span>
-                <div className={`font-bold text-black tracking-tighter leading-none ${counter > 99 ? "text-[22px] font-black" : "text-3xl font-mono"}`}>
-                  {counter > 99 ? (
-                    <motion.span
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="inline-block"
-                    >
+             {/* Progress Number or Welcome Message */}
+             <AnimatePresence mode="wait">
+                {!showWelcome ? (
+                  <motion.div
+                    key="progress"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="flex flex-col items-center"
+                  >
+                    <div className="flex items-start justify-center relative">
+                      <h2 className="text-6xl font-heavy text-black leading-none tracking-tighter tabular-nums">
+                        {pctValue}
+                      </h2>
+                      <span className="text-xl text-[#00e5b0] font-bold ml-1 mt-1 font-mono">%</span>
+                    </div>
+                    
+                    {/* Loading Bar */}
+                    <div className="w-40 h-1 bg-black/5 rounded-full overflow-hidden mt-5">
+                      <motion.div 
+                          className="h-full bg-[#00e5b0] shadow-[0_0_10px_#00e5b0]"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${progress * 100}%` }}
+                      />
+                    </div>
+
+                    <p className="text-black/30 font-mono text-[10px] tracking-[0.2em] uppercase animate-pulse mt-3">
+                      Loading Assets...
+                    </p>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="welcome"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    className="flex flex-col items-center"
+                  >
+                    <h2 className="text-3xl font-heavy text-black tracking-tighter text-center">
                       WELCOME
-                    </motion.span>
-                  ) : (
-                    <span>{pctString}%</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Vertical Separator */}
-              <div className="w-[1px] h-8 bg-black/10"></div>
-
-              {/* Progress Bar */}
-              <div className="w-32 h-1.5 bg-black/5 rounded-full overflow-hidden relative">
-                <motion.div 
-                  className="absolute top-0 left-0 h-full bg-black rounded-full"
-                  initial={{ width: "0%" }}
-                  animate={{ width: `${progress * 100}%` }}
-                  transition={{ ease: "linear" }}
-                />
-              </div>
-
-            </div>
+                    </h2>
+                    <p className="text-[#00e5b0] font-mono text-[10px] tracking-widest mt-1 uppercase font-bold">
+                       Access Granted
+                    </p>
+                  </motion.div>
+                )}
+             </AnimatePresence>
           </motion.div>
-
-          {/* Bottom Branding */}
-          <div className="absolute bottom-12 left-0 right-0 text-center opacity-30">
-            <span className="text-xs font-mono tracking-[0.3em] uppercase text-black">
-              Portfolio 2026 • Nithish Reddy
-            </span>
-          </div>
-
         </motion.div>
       )}
     </AnimatePresence>

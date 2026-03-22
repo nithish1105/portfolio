@@ -6,17 +6,9 @@ export function setupLighting(scene, screenLightMesh = null) {
   const dirLight = new THREE.DirectionalLight(0xffffff, 0); // Start at 0 for GSAP
   dirLight.position.set(5, 10, 7);
   dirLight.castShadow = true;
-  // Reduce shadow map resolution for performance (2048 -> 1024 is huge savings)
-  dirLight.shadow.mapSize.width = 1024;
-  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
   dirLight.shadow.bias = -0.001;
-  // Limit shadow camera frustration to just the character area
-  dirLight.shadow.camera.near = 0.5;
-  dirLight.shadow.camera.far = 25;
-  dirLight.shadow.camera.left = -5;
-  dirLight.shadow.camera.right = 5;
-  dirLight.shadow.camera.top = 5;
-  dirLight.shadow.camera.bottom = -5;
   scene.add(dirLight);
 
   // 2. Point Light (Fill/Screen bounce)
