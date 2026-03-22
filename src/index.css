@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-500: #00e5b0;
+  --color-neon-teal: #00e5b0;
+  --color-neon-purple: #c084fc;
+  --color-dark-bg: #0a0a0a;
+}
+
+@layer base {
+  html, body, #root {
+    @apply text-white antialiased min-h-screen w-full;
+    background-color: var(--color-dark-bg);
+    cursor: none;
+    overflow-x: hidden;
+  }
+  
+  a, button, [role="button"] {
+    cursor: none;
+  }
+
+  ::selection {
+    @apply bg-[#00e5b0]/30 text-white;
+  }
+}
+
+/* Base grid pattern for dark aesthetic */
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Cinematic glows */
+.bg-radial-glow {
+  background: radial-gradient(circle at center, rgba(0, 229, 176, 0.15) 0%, rgba(192, 132, 252, 0.05) 40%, transparent 70%);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Loading animation from requirements */
+.loading-ring {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(0, 229, 176, 0.2);
+  border-top-color: #00e5b0;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Smooth custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00e5b0;
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  }
+  .neon-glow {
+    filter: drop-shadow(0 0 15px rgba(0, 229, 176, 0.4));
+  }
+  .text-glow {
+    text-shadow: 0 0 20px rgba(0, 229, 176, 0.5);
+  }
+  .heading-heavy {
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+}
