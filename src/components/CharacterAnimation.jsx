@@ -48,7 +48,7 @@ const CharacterAnimation = ({ width = 420, height = 570 }) => {
     for (let i = 0; i < TOTAL_FRAMES; i++) {
       const img = new Image();
       const num = String(i + 1).padStart(3, '0');
-      img.src = `/frames/ezgif-frame-${num}.jpg`;
+      img.src = `${import.meta.env.BASE_URL}frames/ezgif-frame-${num}.jpg`;
       img.onload = img.onerror = () => { if (++loaded === TOTAL_FRAMES) done(); };
       imgs[i] = img;
     }

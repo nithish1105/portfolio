@@ -134,7 +134,7 @@ const Landing = () => {
         className="absolute bottom-10 right-10 md:right-20 pointer-events-auto"
       >
         <a 
-          href="/Nithish_Resume.pdf" 
+          href={`${import.meta.env.BASE_URL}Nithish_Resume.pdf`} 
           target="_blank"
           className="group flex items-center gap-3 px-8 py-4 bg-white/5 border border-white/10 glass rounded-full hover:bg-white/10 hover:border-[#00e5b0]/50 transition-all cursor-none"
         >

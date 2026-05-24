@@ -1,31 +1,25 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const LoadingContext = createContext();
 
 export const useLoading = () => useContext(LoadingContext);
 
 export const LoadingProvider = ({ children }) => {
-  const [progress, setProgress] = useState(0); // 0 to 1
+  const [progress, setProgressState] = useState(0); // 0 to 1
   const [isReady, setIsReady] = useState(false);
+  const isReadyRef = useRef(false);
 
-  // Smooth progress simulator
-  useEffect(() => {
-    let current = 0;
-    const timer = setInterval(() => {
-      // 1 / 0.0025 = 400 steps. 400 * 10ms = 4000ms (4 seconds)
-      current += 0.0025; 
-      
-      if (current >= 1) {
-        current = 1;
-        clearInterval(timer);
-        setTimeout(() => setIsReady(true), 2000); // Wait 2s (matches 6s timeline)
-      }
-      
-      setProgress((prev) => Math.max(prev, current));
-    }, 10); // Ultra smooth 10ms interval
-
-    return () => clearInterval(timer);
-  }, []);
+  // setProgress is called by the splash screen (video timeupdate → 0..1)
+  // When it reaches 1.0, flip isReady after a short delay so the exit
+  // animation has time to start before the main content renders.
+  const setProgress = (val) => {
+    setProgressState(val);
+    if (val >= 1.0 && !isReadyRef.current) {
+      isReadyRef.current = true;
+      // Short delay so the framer-motion exit transition is fully kicked off
+      setTimeout(() => setIsReady(true), 1200);
+    }
+  };
 
   return (
     <LoadingContext.Provider value={{ progress, setProgress, isReady }}>

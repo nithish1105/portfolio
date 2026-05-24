@@ -42,12 +42,12 @@ export function createCharacterScene(canvas, onProgress, onReady) {
   const loadScene = async () => {
     try {
       // Skip Decrypt for custom provided models
-      const url = '/models/base_basic_pbr.glb';
+      const url = `${import.meta.env.BASE_URL}models/base_basic_pbr.glb`;
       const revoke = () => {};
 
       const loader = new GLTFLoader();
       const dracoLoader = new DRACOLoader();
-      dracoLoader.setDecoderPath('/draco/');
+      dracoLoader.setDecoderPath(`${import.meta.env.BASE_URL}draco/`);
       loader.setDRACOLoader(dracoLoader);
 
       loader.load(
