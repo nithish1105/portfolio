@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+import { GraduationCap, Trophy, BookOpen } from 'lucide-react';
+
 const About = () => {
   return (
     <section
@@ -29,7 +31,7 @@ const About = () => {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
               <span className="h-2 w-2 rounded-full bg-[#00e5b0] shadow-[0_0_16px_rgba(0,229,176,0.8)]" />
-              About Me
+              About Me & Education
             </span>
           </motion.div>
 
@@ -40,23 +42,69 @@ const About = () => {
             transition={{ delay: 0.08, duration: 0.7, ease: [0.25, 0.8, 0.25, 1] }}
             className="p-6 md:p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
           >
-            <h3 className="text-3xl md:text-4xl font-heavy text-white mb-4 leading-tight">
-              Full Stack Developer crafting polished, production-ready experiences.
+            <h3 className="text-2xl md:text-3xl font-heavy text-white mb-4 leading-tight">
+              AI & Data Science Student & Distributed Systems Developer
             </h3>
-            <p className="text-white/80 text-lg md:text-xl leading-relaxed font-sans font-medium tracking-wide">
-              4+ years building scalable web applications with React.js, Angular, Next.js, Node.js, and NestJS. Skilled in microservices architecture, CMS development, and low-code platforms. Passionate about creating high-performance, production-ready solutions from concept to deployment.
+            <p className="text-white/80 text-base md:text-lg leading-relaxed font-sans font-medium tracking-wide">
+              Hands-on experience building distributed systems, machine learning pipelines, and full-stack mobile applications. Proficient in Python, C++, and Java with strong foundations in data structures, algorithms, and software design. Practical exposure to concurrency, multi-threading, synchronization, data mining, and performance optimization across real-time deployed projects.
             </p>
+          </motion.div>
+
+          {/* Education Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ delay: 0.15, duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }}
+            className="p-5 md:p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md relative overflow-hidden group hover:border-[#00e5b0]/40 transition-colors"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-[#00e5b0]/10 border border-[#00e5b0]/20 flex items-center justify-center shrink-0 text-[#00e5b0]">
+                <GraduationCap size={22} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <h4 className="text-lg font-bold text-white">B.Tech – Artificial Intelligence & Data Science</h4>
+                  <span className="text-xs font-mono text-[#00e5b0] bg-[#00e5b0]/10 px-2.5 py-1 rounded-full border border-[#00e5b0]/20">2024 – Present</span>
+                </div>
+                <p className="text-white/70 text-sm font-medium mt-1">Aditya College of Engineering, Madanapalli, Andhra Pradesh</p>
+                <div className="mt-3 flex items-center gap-2 text-xs text-white/50 font-mono">
+                  <BookOpen size={14} className="text-[#00e5b0]" />
+                  <span>Coursework: DSA • OOP • DBMS • ML • AI • Networks • OS • Software Engineering</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Achievement Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ delay: 0.2, duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }}
+            className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/30 backdrop-blur-md flex items-center gap-3"
+          >
+            <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+              <Trophy size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold font-mono text-amber-400 uppercase tracking-wider">1st Prize Winner</span>
+                <span className="text-[10px] text-amber-300/60 font-mono">HackSprint, Fusion 2K26</span>
+              </div>
+              <p className="text-xs text-white/70 mt-0.5">First place at Aditya College annual tech fest — built a live working solution under time constraints.</p>
+            </div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
-            transition={{ delay: 0.2, duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }}
-            className="flex flex-wrap gap-3 text-sm text-white/70"
+            transition={{ delay: 0.25, duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }}
+            className="flex flex-wrap gap-2 text-xs text-white/70"
           >
-            {['Scalable UI', 'Microservices', 'High-performance builds', 'End-to-end delivery'].map((pill) => (
-              <span key={pill} className="px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+            {['Distributed Systems', 'ML Pipelines', 'Computer Vision', 'Concurrency & Threads', 'Data Mining', 'Performance Debugging'].map((pill) => (
+              <span key={pill} className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md font-mono text-[11px] text-[#00e5b0]">
                 {pill}
               </span>
             ))}

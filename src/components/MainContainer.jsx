@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLoading } from '../contexts/LoadingContext';
@@ -20,6 +20,7 @@ const MainContainer = () => {
   const { setProgress, isReady } = useLoading();
   const characterSystemRef = useRef(null);
   const overlayRimRef = useRef(null);
+  const waveTriggeredRef = useRef(false); // prevent double-fire
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -34,6 +35,33 @@ const MainContainer = () => {
 
     return () => setup.dispose();
   }, [setProgress]);
+
+  // ── Trigger wave once both: (a) loading screen is gone AND (b) model is loaded ──
+  useEffect(() => {
+    if (!isReady) return;
+    waveTriggeredRef.current = false;
+
+    // Poll until mixerManager is available (GLTF load is async)
+    const pollId = setInterval(() => {
+      const mm = characterSystemRef.current?.mixerManager;
+      if (mm && !waveTriggeredRef.current) {
+        waveTriggeredRef.current = true;
+        clearInterval(pollId);
+        // Small grace delay so the scene is visible before the wave starts
+        setTimeout(() => {
+          mm.triggerHandWave?.();
+        }, 600);
+      }
+    }, 200);
+
+    // Give up after 8s in case model fails
+    const giveUp = setTimeout(() => clearInterval(pollId), 8000);
+
+    return () => {
+      clearInterval(pollId);
+      clearTimeout(giveUp);
+    };
+  }, [isReady]);
 
   // Orchestrate the intro sequence once the loading screen tells us we're ready (i.e., its exit animation finishes)
   useEffect(() => {
@@ -123,6 +151,10 @@ const MainContainer = () => {
     }
   }, [isReady]);
 
+  const handleSayHi = useCallback(() => {
+    characterSystemRef.current?.mixerManager?.triggerHandWave?.();
+  }, []);
+
   return (
     <div className="relative w-full">
       {/* 3D Canvas Background */}
@@ -143,7 +175,7 @@ const MainContainer = () => {
       <main className="relative z-10 bg-transparent flex flex-col">
         {/* Sections */}
         <div id="home" className="h-[100dvh] relative">
-          <Landing />
+          <Landing onSayHi={handleSayHi} isReady={isReady} />
         </div>
         
         {/* About section made transparent to reveal the shifted 3D character */}

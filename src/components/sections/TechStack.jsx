@@ -1,172 +1,367 @@
-import React, { useRef, useState, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Physics, useSphere } from '@react-three/cannon';
-import { Environment, Text, Decal, useTexture } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useRef, useState, useEffect } from 'react';
 
-const SKILLS = [
-  { name: "React", bg: "#61DAFB", img: "https://cdn.simpleicons.org/react" },
-  { name: "Three.js", bg: "#000000", img: "https://cdn.simpleicons.org/three.js" },
-  { name: "Next.js", bg: "#000000", img: "https://cdn.simpleicons.org/next.js" },
-  { name: "Node.js", bg: "#339933", img: "https://cdn.simpleicons.org/nodedotjs" },
-  { name: "Tailwind", bg: "#06B6D4", img: "https://cdn.simpleicons.org/tailwindcss" },
-  { name: "WebGL", bg: "#990000", img: "https://cdn.simpleicons.org/webgl" },
-  { name: "TypeScript", bg: "#3178C6", img: "https://cdn.simpleicons.org/typescript" },
-  { name: "Python", bg: "#3776AB", img: "https://cdn.simpleicons.org/python" },
-  { name: "Postgres", bg: "#4169E1", img: "https://cdn.simpleicons.org/postgresql" },
-  { name: "Redis", bg: "#DC382D", img: "https://cdn.simpleicons.org/redis" },
-  { name: "GSAP", bg: "#88CE02", img: "https://cdn.simpleicons.org/greensock" },
-  { name: "Framer", bg: "#0055FF", img: "https://cdn.simpleicons.org/framer" },
-  { name: "MySQL", bg: "#4479A1", img: "https://cdn.simpleicons.org/mysql" },
-  { name: "Java", bg: "#007396", img: "https://cdn.simpleicons.org/openjdk" }
+/* ─────────────────────────────────────────────────────────────
+   DATA
+───────────────────────────────────────────────────────────── */
+const CATEGORIES = [
+  {
+    id: 'languages',
+    label: 'Languages',
+    icon: '⌨️',
+    color: '#6366f1',
+    glow: 'rgba(99,102,241,0.3)',
+    skills: [
+      { name: 'Python',     icon: '🐍', level: 90 },
+      { name: 'JavaScript', icon: '🌐', level: 82 },
+      { name: 'C++',        icon: '⚙️', level: 75 },
+      { name: 'Java',       icon: '☕', level: 70 },
+      { name: 'SQL',        icon: '🗄️', level: 78 },
+    ],
+  },
+  {
+    id: 'ai_ml',
+    label: 'AI & ML',
+    icon: '🤖',
+    color: '#a855f7',
+    glow: 'rgba(168,85,247,0.3)',
+    skills: [
+      { name: 'Machine Learning',  icon: '📊', level: 85 },
+      { name: 'Deep Learning',     icon: '🧠', level: 80 },
+      { name: 'Computer Vision',   icon: '👁️', level: 78 },
+      { name: 'NLP',               icon: '💬', level: 75 },
+      { name: 'LangChain / RAG',   icon: '🔗', level: 72 },
+    ],
+  },
+  {
+    id: 'frameworks',
+    label: 'Frameworks & Tools',
+    icon: '🛠️',
+    color: '#06b6d4',
+    glow: 'rgba(6,182,212,0.3)',
+    skills: [
+      { name: 'React',       icon: '⚛️', level: 80 },
+      { name: 'React Native',icon: '📱', level: 75 },
+      { name: 'Node.js',     icon: '🟢', level: 70 },
+      { name: 'TensorFlow',  icon: '🔶', level: 72 },
+      { name: 'PyTorch',     icon: '🔥', level: 74 },
+    ],
+  },
+  {
+    id: 'cs',
+    label: 'CS Fundamentals',
+    icon: '📐',
+    color: '#10b981',
+    glow: 'rgba(16,185,129,0.3)',
+    skills: [
+      { name: 'Data Structures', icon: '🌲', level: 88 },
+      { name: 'Algorithms',      icon: '🔢', level: 85 },
+      { name: 'OOP',             icon: '🎯', level: 83 },
+      { name: 'DBMS',            icon: '💾', level: 78 },
+      { name: 'Networking',      icon: '🌐', level: 70 },
+    ],
+  },
+  {
+    id: 'devtools',
+    label: 'Dev Tools',
+    icon: '🔧',
+    color: '#f59e0b',
+    glow: 'rgba(245,158,11,0.3)',
+    skills: [
+      { name: 'Git',          icon: '🗃️', level: 85 },
+      { name: 'GitHub',       icon: '🐙', level: 85 },
+      { name: 'OpenCV',       icon: '🎨', level: 76 },
+      { name: 'REST APIs',    icon: '🔌', level: 78 },
+      { name: 'Cloud / Vercel',icon: '☁️', level: 68 },
+    ],
+  },
 ];
 
-const SkillBall = ({ skill, position }) => {
-  const [ref, api] = useSphere(() => ({
-    mass: 1,
-    position,
-    args: [1],
-    linearDamping: 0.8,
-    angularDamping: 0.8,
-    collisionFilterGroup: 1, // Optimize collision
-    collisionFilterMask: 1, // Only collide with default group
-  }));
+const MARQUEE_SKILLS = [
+  'Python','Machine Learning','React','Deep Learning','LangChain',
+  'PyTorch','TensorFlow','Node.js','Computer Vision','NLP',
+  'C++','Java','SQL','Git','OpenCV','React Native','REST APIs',
+  'Data Structures','Algorithms','OOP','DBMS','RAG',
+];
+
+/* ─────────────────────────────────────────────────────────────
+   SKILL CARD
+───────────────────────────────────────────────────────────── */
+const SkillCard = ({ skill, color, glow, index }) => {
+  const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const texture = useTexture(skill.img);
+  const ref = useRef(null);
 
-  useFrame(() => {
-    if (!ref.current) return;
-    // Skip heavy calculations if not needed every frame
-    if (Math.random() > 0.5) {
-      const pos = new THREE.Vector3();
-      ref.current.getWorldPosition(pos);
-      
-      // Keep Z roughly 0 to avoid front/back spread
-      // Gentler pull to center for smoother float
-      const force = pos.clone().normalize().multiplyScalar(-2.5);
-      api.applyForce([force.x, force.y, -pos.z * 2], [0, 0, 0]); // Stronger Z containment
-    }
-  });
-
-  const handlePointerOver = (e) => {
-    e.stopPropagation();
-    setHovered(true);
-    document.body.style.cursor = 'none';
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), index * 80);
+    return () => clearTimeout(timer);
+  }, [index]);
 
   return (
-    <mesh 
+    <div
       ref={ref}
-      onPointerOver={handlePointerOver}
-      onPointerOut={() => setHovered(false)}
-      castShadow
-      receiveShadow
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(16px)',
+        transition: `opacity 0.4s ease ${index * 0.06}s, transform 0.4s ease ${index * 0.06}s`,
+        boxShadow: hovered ? `0 0 20px ${glow}, 0 8px 32px rgba(0,0,0,0.4)` : '0 2px 12px rgba(0,0,0,0.3)',
+        borderColor: hovered ? color : 'rgba(255,255,255,0.07)',
+        background: hovered
+          ? `linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0.2) 100%)`
+          : `rgba(255,255,255,0.03)`,
+        transition: 'all 0.25s ease',
+      }}
+      className="rounded-xl border p-3 cursor-default"
     >
-      <sphereGeometry args={[1, 16, 16]} /> {/* Reduced polygon count for performance */}
-      <meshPhysicalMaterial 
-        color="#ffffff" 
-        roughness={0.15}
-        metalness={0.1}
-        transmission={0}
-        thickness={1}
-        clearcoat={1}
-        clearcoatRoughness={0.1}
-      />
-      <Decal 
-        position={[0, 0, 1]} 
-        rotation={[0, 0, 0]} 
-        scale={0.8} 
-        map={texture} 
-      />
-      <Text
-        position={[0, -0.6, 0.8]} 
-        rotation={[0, 0, 0]}
-        fontSize={0.25}
-        fontWeight="bold"
-        color="black"
-        anchorX="center"
-        anchorY="middle"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf"
-      >
-        {skill.name}
-      </Text>
-
-      <Decal 
-        position={[0, 0, -1]} 
-        rotation={[0, Math.PI, 0]} 
-        scale={0.8} 
-        map={texture} 
-      />
-      <Text
-        position={[0, -0.6, -0.8]} 
-        rotation={[0, Math.PI, 0]}
-        fontSize={0.25}
-        fontWeight="bold"
-        color="black"
-        anchorX="center"
-        anchorY="middle"
-        font="https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyeMZhrib2Bg-4.ttf"
-      >
-        {skill.name}
-      </Text>
-    </mesh>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-base">{skill.icon}</span>
+          <span className="text-sm font-semibold text-white/90">{skill.name}</span>
+        </div>
+        <span style={{ color }} className="text-xs font-bold font-mono">
+          {skill.level}%
+        </span>
+      </div>
+      {/* Progress Bar */}
+      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div
+          style={{
+            width: visible ? `${skill.level}%` : '0%',
+            background: `linear-gradient(90deg, ${color}, ${color}88)`,
+            transition: `width 0.9s cubic-bezier(0.22,1,0.36,1) ${index * 0.08 + 0.3}s`,
+            boxShadow: `0 0 8px ${color}`,
+          }}
+          className="h-full rounded-full"
+        />
+      </div>
+    </div>
   );
 };
 
-// Mouse repeller invisible ball
-const Pointer = () => {
-  const { viewport } = useThree();
-  const [ref, api] = useSphere(() => ({ type: "Kinematic", args: [2.5], position: [0, 0, 0] }));
-  
-  useFrame(({ mouse }) => {
-    const x = (mouse.x * viewport.width) / 2;
-    const y = (mouse.y * viewport.height) / 2;
-    api.position.set(x, y, 0); 
-  });
-  return null;
+/* ─────────────────────────────────────────────────────────────
+   CATEGORY TAB
+───────────────────────────────────────────────────────────── */
+const CategoryTab = ({ cat, isActive, onClick }) => (
+  <button
+    onClick={() => onClick(cat.id)}
+    style={{
+      borderColor: isActive ? cat.color : 'rgba(255,255,255,0.1)',
+      color: isActive ? cat.color : 'rgba(255,255,255,0.5)',
+      background: isActive
+        ? `linear-gradient(135deg, ${cat.color}15, ${cat.color}05)`
+        : 'transparent',
+      boxShadow: isActive ? `0 0 16px ${cat.glow}` : 'none',
+    }}
+    className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-300 whitespace-nowrap"
+  >
+    <span>{cat.icon}</span>
+    <span className="hidden sm:inline">{cat.label}</span>
+  </button>
+);
+
+/* ─────────────────────────────────────────────────────────────
+   MARQUEE ROW
+───────────────────────────────────────────────────────────── */
+const MarqueeRow = ({ reverse = false }) => {
+  const doubled = [...MARQUEE_SKILLS, ...MARQUEE_SKILLS];
+  return (
+    <div className="overflow-hidden w-full">
+      <div
+        style={{
+          display: 'flex',
+          gap: '12px',
+          width: 'max-content',
+          animation: `marquee${reverse ? 'Reverse' : ''} 30s linear infinite`,
+        }}
+      >
+        {doubled.map((s, i) => (
+          <span
+            key={i}
+            className="px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs font-mono text-white/60 whitespace-nowrap backdrop-blur-sm"
+          >
+            {s}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
 };
 
+/* ─────────────────────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────────────────────── */
 const TechStack = () => {
-  const balls = useMemo(() => {
-    return SKILLS.map((skill, index) => {
-      // distribute randomly in a sphere
-      const theta = Math.random() * Math.PI * 2;
-      const r = Math.random() * 5;
-      const x = r * Math.cos(theta);
-      const y = r * Math.sin(theta);
-      return { id: index, skill: skill, position: [x, y, (Math.random() - 0.5) * 2] };
-    });
-  }, []);
+  const [activeId, setActiveId] = useState('languages');
+  const activeCategory = CATEGORIES.find(c => c.id === activeId);
 
   return (
-    <section id="techstack" className="py-24 relative bg-[#0a0a0a] min-h-screen flex flex-col items-center">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      
-      <div className="container mx-auto px-6 relative z-10 pt-10">
-        <h2 className="text-4xl md:text-5xl font-heavy text-white uppercase tracking-tighter text-center">
-          My Tech Stack
-        </h2>
-        <p className="text-white/40 font-mono text-sm tracking-widest text-center mt-4 uppercase">
-          Interact with the spheres
-        </p>
-      </div>
+    <>
+      {/* Keyframe styles injected inline */}
+      <style>{`
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+        @keyframes marqueeReverse {
+          from { transform: translateX(-50%); }
+          to   { transform: translateX(0); }
+        }
+        @keyframes gradientShift {
+          0%   { background-position: 0% 50%; }
+          50%  { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        @keyframes fadeUp {
+          from { opacity:0; transform: translateY(24px); }
+          to   { opacity:1; transform: translateY(0); }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.4; }
+          50%       { opacity: 0.9; }
+        }
+      `}</style>
 
-      <div className="w-full h-[600px] md:h-[800px] mt-8 relative cursor-none">
-        <Canvas shadows dpr={[1, 1.5]} camera={{ position: [0, 0, 15], fov: 45 }}> {/* Reduced dpr for mobile */}
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 10, 10]} intensity={2} angle={0.3} penumbra={1} castShadow />
-          <Environment preset="city" />
-          
-          <Physics gravity={[0, 0, 0]} iterations={5}> {/* Reduced physics iterations */}
-            <Pointer />
-            {balls.map((ball) => (
-              <SkillBall key={ball.id} skill={ball.skill} position={ball.position} />
+      <section id="techstack" className="relative py-28 bg-[#050505] overflow-hidden">
+
+        {/* Background ambient blobs */}
+        <div
+          style={{
+            position: 'absolute', top: '10%', left: '5%',
+            width: 400, height: 400, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)',
+            filter: 'blur(60px)', pointerEvents: 'none',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute', bottom: '10%', right: '5%',
+            width: 500, height: 500, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(168,85,247,0.07) 0%, transparent 70%)',
+            filter: 'blur(80px)', pointerEvents: 'none',
+          }}
+        />
+
+        {/* Top divider */}
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+        <div className="container mx-auto px-6 md:px-12 relative z-10">
+
+          {/* ── Header ── */}
+          <div className="text-center mb-16" style={{ animation: 'fadeUp 0.6s ease both' }}>
+            <p className="text-xs font-mono uppercase tracking-[0.3em] text-white/30 mb-4">
+              skills & expertise
+            </p>
+            <h2
+              className="text-4xl md:text-6xl font-black uppercase text-white tracking-tight"
+              style={{
+                backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #a855f7 50%, #6366f1 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundSize: '200% auto',
+                animation: 'gradientShift 4s ease infinite',
+              }}
+            >
+              Tech Stack
+            </h2>
+            <p className="mt-4 text-white/40 text-sm max-w-lg mx-auto leading-relaxed">
+              A curated overview of the technologies, frameworks, and tools I work with daily to build AI-powered products.
+            </p>
+          </div>
+
+          {/* ── Category Tabs ── */}
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
+            {CATEGORIES.map(cat => (
+              <CategoryTab
+                key={cat.id}
+                cat={cat}
+                isActive={activeId === cat.id}
+                onClick={setActiveId}
+              />
             ))}
-          </Physics>
+          </div>
 
-        </Canvas>
-      </div>
-    </section>
+          {/* ── Active Category Panel ── */}
+          <div
+            key={activeId}
+            style={{
+              animation: 'fadeUp 0.35s ease both',
+              borderColor: `${activeCategory.color}30`,
+              boxShadow: `0 0 60px ${activeCategory.glow}`,
+            }}
+            className="rounded-2xl border bg-white/[0.02] backdrop-blur-sm p-6 md:p-8"
+          >
+            {/* Panel Header */}
+            <div className="flex items-center gap-3 mb-8">
+              <div
+                style={{ background: `${activeCategory.color}20`, border: `1px solid ${activeCategory.color}40` }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+              >
+                {activeCategory.icon}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">{activeCategory.label}</h3>
+                <p className="text-xs text-white/40 font-mono">{activeCategory.skills.length} skills</p>
+              </div>
+              {/* Decorative accent line */}
+              <div
+                className="ml-auto h-px flex-1 max-w-[120px]"
+                style={{ background: `linear-gradient(90deg, ${activeCategory.color}, transparent)` }}
+              />
+            </div>
+
+            {/* Skill Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {activeCategory.skills.map((skill, i) => (
+                <SkillCard
+                  key={skill.name}
+                  skill={skill}
+                  color={activeCategory.color}
+                  glow={activeCategory.glow}
+                  index={i}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ── All Skills Summary (Stat Numbers) ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
+            {[
+              { value: '5+', label: 'Programming Languages', color: '#6366f1' },
+              { value: '8+', label: 'Certifications Earned', color: '#a855f7' },
+              { value: '4+', label: 'Live Projects Built',    color: '#06b6d4' },
+              { value: '20+', label: 'Tools & Frameworks',   color: '#10b981' },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                style={{
+                  borderColor: `${stat.color}30`,
+                  animation: `fadeUp 0.5s ease ${i * 0.1}s both`,
+                }}
+                className="rounded-xl border bg-white/[0.025] backdrop-blur-sm p-5 text-center"
+              >
+                <div
+                  style={{ color: stat.color, textShadow: `0 0 20px ${stat.color}` }}
+                  className="text-3xl font-black font-mono"
+                >
+                  {stat.value}
+                </div>
+                <div className="text-xs text-white/40 mt-1 font-mono leading-tight">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Scrolling Marquee ── */}
+        <div className="mt-16 space-y-3">
+          <MarqueeRow />
+          <MarqueeRow reverse />
+        </div>
+
+        {/* Bottom divider */}
+        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </section>
+    </>
   );
 };
 

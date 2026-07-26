@@ -4,18 +4,52 @@ import { ArrowLeft, ArrowRight, ExternalLink } from 'lucide-react';
 
 const PROJECTS = [
   {
-    title: 'Smart Academy',
-    description: 'An educational platform for smart learning featuring interactive courses, student progress tracking, and resource management.',
-    tech: ['HTML', 'CSS', 'JavaScript', 'GitHub Pages'],
-    link: 'https://nithish1105.github.io/smart-academy/',
+    title: 'Smart Farm – Crop Prediction & Agriculture Platform',
+    subtitle: 'Distributed Agriculture Web Application',
+    description: 'Designed system architecture for a distributed agriculture web application with 3 integrated modules: crop prediction, live mandi price tracking, and pesticide/medicine recommendation served from a unified backend.',
+    points: [
+      'Architected distributed agriculture web app integrating crop prediction, live mandi price tracking, and pesticide recommendation.',
+      'Applied data mining techniques on agricultural datasets & evaluated ML classification algorithms, achieving 90% accuracy with interactive data visualization dashboards.'
+    ],
+    tech: ['Python', 'Machine Learning', 'React', 'Data Mining', 'Data Visualization'],
+    link: 'https://farm-beta-topaz.vercel.app',
+    image: 'https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=2070&auto=format&fit=crop'
+  },
+  {
+    title: 'Medical Image Disease Detection System',
+    subtitle: 'End-to-End Deep Learning Pipeline',
+    description: 'Architected an end-to-end deep learning pipeline for automated disease detection from medical images, covering multi-stage preprocessing, augmentation, model training, inference, and benchmarking.',
+    points: [
+      'Achieved 93% test accuracy across medical image classification datasets with multi-stage preprocessing and data augmentation.',
+      'Conducted systematic debugging and performance analysis across training loops; implemented early stopping and learning-rate scheduling to eliminate overfitting.'
+    ],
+    tech: ['Python', 'Deep Learning', 'Computer Vision', 'PyTorch', 'Model Optimization'],
+    link: 'https://github.com/nithish1105',
+    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=2070&auto=format&fit=crop'
+  },
+  {
+    title: 'Smart Academy – Mobile Learning Platform',
+    subtitle: 'Distributed Client-Server Mobile App',
+    description: 'Architected a distributed client-server mobile platform with React Native and Node.js, implementing synchronization mechanisms to maintain consistent state across concurrent user sessions.',
+    points: [
+      'Built distributed client-server architecture with state synchronization across concurrent active user sessions.',
+      'Integrated ML algorithms for personalized content delivery, decoupling AI inference from presentation layer for maximum maintainability.'
+    ],
+    tech: ['React Native', 'Node.js', 'AI', 'State Synchronization', 'Mobile App'],
+    link: 'https://smart-academy.vercel.app',
     image: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=2070&auto=format&fit=crop'
   },
   {
-    title: 'Text to Emoji',
-    description: 'A fun and interactive tool that converts plain text into relevant emojis instantly, enhancing digital communication.',
-    tech: ['JavaScript', 'HTML5', 'CSS3', 'Emoji API'],
-    link: 'https://nithish1105.github.io/text-to-emoji/',
-    image: 'https://images.unsplash.com/photo-1541359927273-d76820fc43f9?q=80&w=2070&auto=format&fit=crop'
+    title: 'WorkLink – Job Portal for Workers',
+    subtitle: 'Full-Stack Distributed Mobile Platform',
+    description: 'Full-stack distributed mobile platform connecting daily-wage workers with employers, implementing concurrency handling and thread-safe real-time messaging.',
+    points: [
+      'Implemented thread-safe real-time messaging and concurrency handling supporting multiple simultaneous user sessions reliably.',
+      'Designed normalized database schema and custom data-structure driven job-matching algorithm optimized for low-end devices.'
+    ],
+    tech: ['Full-Stack', 'Mobile Development', 'Concurrency', 'Thread-Safety', 'Database Schema'],
+    link: 'https://nithish1105.github.io/worklink',
+    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=2070&auto=format&fit=crop'
   }
 ];
 
@@ -32,7 +66,7 @@ const Work = () => {
         {/* Header */}
         <div className="w-full">
           <h2 className="text-5xl md:text-7xl font-heavy text-white uppercase tracking-tighter">
-            My Work
+            Featured Projects
           </h2>
           <div className="w-full h-px bg-white/10 mt-8 mb-16" />
         </div>
@@ -51,25 +85,40 @@ const Work = () => {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col"
               >
-                <div className="text-[#00e5b0] font-mono text-2xl font-bold mb-4">
-                  {(index + 1).toString().padStart(2, '0')}
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-[#00e5b0] font-mono text-2xl font-bold">
+                    {(index + 1).toString().padStart(2, '0')}
+                  </span>
+                  <span className="text-xs font-mono uppercase tracking-widest text-[#00e5b0]/80 bg-[#00e5b0]/10 px-3 py-1 rounded-full border border-[#00e5b0]/20">
+                    {PROJECTS[index].subtitle}
+                  </span>
                 </div>
                 
-                <h3 className="text-4xl md:text-5xl font-heavy text-white uppercase leading-tight">
+                <h3 className="text-3xl md:text-4xl font-heavy text-white uppercase leading-tight">
                   {PROJECTS[index].title}
                 </h3>
                 
-                <p className="mt-6 text-white/60 text-lg leading-relaxed font-sans font-light">
+                <p className="mt-4 text-white/70 text-base leading-relaxed font-sans font-light">
                   {PROJECTS[index].description}
                 </p>
 
-                <div className="mt-12">
-                  <span className="text-[#00e5b0] font-mono text-sm uppercase tracking-widest block mb-6 font-bold">
-                    Tools & Features
+                {/* Technical Accomplishments / Points */}
+                <ul className="mt-6 space-y-3">
+                  {PROJECTS[index].points.map((pt, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-white/80 font-sans">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#00e5b0] mt-2 shrink-0" />
+                      <span>{pt}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-8">
+                  <span className="text-[#00e5b0] font-mono text-xs uppercase tracking-widest block mb-4 font-bold">
+                    Technologies & Concepts
                   </span>
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-2">
                     {PROJECTS[index].tech.map((t, i) => (
-                      <span key={i} className="px-4 py-2 bg-white/5 border border-white/10 rounded-full font-mono text-xs text-white/70 uppercase tracking-widest">
+                      <span key={i} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-full font-mono text-xs text-white/80 uppercase tracking-wider">
                         {t}
                       </span>
                     ))}
@@ -78,12 +127,14 @@ const Work = () => {
 
                 <a 
                   href={PROJECTS[index].link} 
-                  className="mt-12 group flex items-center gap-3 self-start cursor-none"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 group flex items-center gap-3 self-start cursor-none"
                 >
                   <span className="text-white font-heavy uppercase tracking-widest text-sm group-hover:text-[#00e5b0] transition-colors">
-                    View Project
+                    Live Demo / Source
                   </span>
-                  <ExternalLink className="w-4 h-4 text-white group-hover:text-[#00e5b0] transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-[#00e5b0] group-hover:translate-x-1 transition-transform" />
                 </a>
 
               </motion.div>

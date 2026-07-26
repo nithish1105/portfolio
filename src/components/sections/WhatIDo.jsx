@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Code2, PenTool, Database, Compass } from 'lucide-react';
+import { Brain, Network, Smartphone, Database } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const SERVICES = [
-  { icon: Code2, title: "Frontend Architecture", desc: "Building scalable, dynamic UI layers with React, Next.js, and TypeScript leveraging modern state management." },
-  { icon: Compass, title: "Interactive 3D", desc: "Crafting immersive WebGL experiences using Three.js, React Three Fiber, and custom GLSL shaders." },
-  { icon: Database, title: "Backend Systems", desc: "Designing robust APIs and microservices with Node.js, Express, Postgres, and real-time sockets." },
-  { icon: PenTool, title: "UI/UX Engineering", desc: "Iterating on high-fidelity designs, micro-interactions, and accessibility to ensure premium user experiences." }
+  { icon: Brain, title: "AI & ML Pipelines", desc: "Architecting end-to-end deep learning pipelines for disease detection, computer vision, NLP, RAG with LangChain, and model optimization." },
+  { icon: Network, title: "Distributed Systems", desc: "Engineering distributed client-server systems with multi-threading, synchronization, concurrency handling, and real-time session tracking." },
+  { icon: Smartphone, title: "Full-Stack & Mobile", desc: "Building cross-platform mobile apps with React Native, Node.js backends, React dashboards, and normalized database schemas." },
+  { icon: Database, title: "Data Mining & Tuning", desc: "Mining agricultural and medical datasets, evaluating ML classification models, and conducting performance debugging for low latency." }
 ];
 
 const WhatIDo = () => {

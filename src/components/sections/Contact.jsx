@@ -78,11 +78,15 @@ const Contact = () => {
           >
             <div>
               <p className="text-[#00e5b0] font-mono text-xs uppercase tracking-widest mb-2 font-bold">Location</p>
-              <p className="text-white text-lg font-light">Planet Earth</p>
+              <p className="text-white text-lg font-light">Madanapalli, AP, India</p>
+            </div>
+            <div>
+              <p className="text-[#00e5b0] font-mono text-xs uppercase tracking-widest mb-2 font-bold">Phone</p>
+              <a href="tel:+919000048244" className="text-white text-lg font-light hover:text-[#00e5b0] transition-colors cursor-none">+91 9000048244</a>
             </div>
             <div>
               <p className="text-[#00e5b0] font-mono text-xs uppercase tracking-widest mb-2 font-bold">Email</p>
-              <a href="mailto:nithishkumarreddynare1@gmail.com" className="text-white text-lg font-light hover:text-[#00e5b0] transition-colors cursor-none">nithishkumarreddynare1@gmail.com</a>
+              <a href="mailto:nare.nithishreddy@gmail.com" className="text-white text-lg font-light hover:text-[#00e5b0] transition-colors cursor-none">nare.nithishreddy@gmail.com</a>
             </div>
           </motion.div>
         </div>
@@ -92,14 +96,12 @@ const Contact = () => {
       <div className="w-full border-t border-white/5 py-8 mt-auto relative z-10 bg-[#0a0a0a]">
         <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-white/40 font-mono text-xs uppercase tracking-widest">
-            © {new Date().getFullYear()} Nithish Reddy.
+            © {new Date().getFullYear()} Nare Nithish Kumar Reddy. All Rights Reserved.
           </p>
           <div className="flex gap-6">
             {[
               { Icon: Github, href: "https://github.com/nithish1105" },
-              { Icon: Linkedin, href: "https://www.linkedin.com/in/nithishkumarreddy-nare-151539382" },
-              { Icon: Twitter, href: "https://twitter.com" },
-              { Icon: Instagram, href: "https://instagram.com" }
+              { Icon: Linkedin, href: "https://linkedin.com/in/nithish-reddy-nare" },
             ].map(({ Icon, href }, idx) => (
               <a 
                 key={idx} 

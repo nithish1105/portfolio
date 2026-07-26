@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 
 const NAV_LINKS = [
   { name: 'ABOUT', href: '#about' },
+  { name: 'STACK', href: '#techstack' },
+  { name: 'CERTIFICATES', href: '#certificates' },
   { name: 'WORK', href: '#work' },
   { name: 'CONTACT', href: '#contact' },
 ];
@@ -56,8 +58,8 @@ const Navbar = () => {
 
         {/* Email - Center */}
         <div className="hidden md:flex justify-center">
-          <a href="mailto:nithishkumarreddynare1@gmail.com" className="text-white/70 hover:text-white transition-colors text-sm font-medium tracking-wide">
-            nithishkumarreddynare1@gmail.com
+          <a href="mailto:nare.nithishreddy@gmail.com" className="text-white/70 hover:text-white transition-colors text-sm font-medium tracking-wide">
+            nare.nithishreddy@gmail.com
           </a>
         </div>
 
