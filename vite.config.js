@@ -5,5 +5,6 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/portfolio/',
+  // Use /portfolio/ base only on GitHub Pages (CI env), / on Vercel & local
+  base: process.env.GITHUB_ACTIONS ? '/portfolio/' : '/',
 })
